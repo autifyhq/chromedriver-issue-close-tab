@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <button name="close">Close tab</button>
+    <p>This tab will be closed in 1 second after clicking the button</p>
+  </body>
+  <script>
+    document.querySelector("button").addEventListener("click", function () {
+      setTimeout(() => {
+        window.close();
+      }, 1000);
+    });
+  </script>
+</html>
