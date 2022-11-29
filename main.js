@@ -37,7 +37,7 @@ async function main(mainHandle, attempt) {
   const timestamp = Date.now();
 
   let count = 0;
-  while (count < 100) {
+  while (Date.now() < timestamp + 2_000) {
     count++;
 
     process.stdout.clearLine();
