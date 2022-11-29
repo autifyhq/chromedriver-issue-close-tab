@@ -15,6 +15,16 @@ Environment
 
 ## How to reproduce it
 
+Reproducible scenario in [main.js](./main.js):
+
+1. webdriver visits https://autifyhq.github.io/chromedriver-issue-close-tab/
+1. open a new tab by clicking the link
+1. switch window to the new tab
+1. click the "Close tab" button, which close the tab after 1 second
+1. send many Screenshot commands so that the tab is closed while executing one of them
+
+You can try it on the following instructions:
+
 1. clone the repository
 1. run `npm install`
 1. run `npx chromedriver` to launch chromedriver
