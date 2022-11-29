@@ -1,43 +1,40 @@
 import assert from "node:assert/strict";
-import { setTimeout } from "timers/promises";
-import { Builder, By } from "selenium-webdriver";
+import { Builder, By, Browser } from "selenium-webdriver";
 import { Options } from "selenium-webdriver/chrome.js";
 
-const options = new Options()
-  .addArguments([
-    // "--no-sandbox",
-    // "--disable-dev-shm-usage",
-    // "--remote-debugging-port=9222",
-    // "--ignore-certificate-errors",
-    // "--use-fake-device-for-media-stream",
-    // "--use-fake-ui-for-media-stream",
-    // "--disable-web-security",
-    // "--disable-site-isolation-trials",
-  ])
-  .headless();
 const driver = new Builder()
-  .withCapabilities({
-    browserName: "chrome",
-    acceptInsecureCerts: true,
-    unhandledPromptBehavior: "ignore",
-  })
-  .setChromeOptions(options)
+  .forBrowser(Browser.CHROME)
+  .setChromeOptions(new Options().headless())
   .usingServer("http://localhost:9515")
   .build();
 
 (async () => {
   await driver.get("https://autifyhq.github.io/chromedriver-issue-close-tab/");
 
-  const firstPageHandle = await driver.getWindowHandle();
+  const mainHandle = await driver.getWindowHandle();
 
+  let attempt = 0;
+  while (attempt < 10) {
+    attempt++;
+    await main(mainHandle, attempt);
+  }
+})().finally(() => {
+  driver.quit();
+});
+
+async function main(mainHandle, attempt) {
+  console.log(`Attempt ${attempt}`);
+
+  await driver.switchTo().window(mainHandle);
   await driver.findElement(By.linkText("Open a new tab")).click();
 
   const handles = await driver.getAllWindowHandles();
-  const newHandle = handles.find((handle) => handle !== firstPageHandle);
+  const newHandle = handles.find((handle) => handle !== mainHandle);
   assert(newHandle);
 
   await driver.switchTo().window(newHandle);
   await driver.findElement(By.name("close")).click();
+  const timestamp = Date.now();
 
   let count = 0;
   while (count < 100) {
@@ -45,16 +42,20 @@ const driver = new Builder()
 
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
-    process.stdout.write(`Attemp to take screenshot: ${count} OK`);
+    process.stdout.write(`Take screenshot: ${count}`);
 
     await driver.takeScreenshot().catch((e) => {
       if (
         !e.message.startsWith("no such window: target window already closed")
       ) {
+        process.stdout.write("\n");
+        console.log(
+          `${Date.now() - timestamp} ms after clicking the close button.`
+        );
         throw e;
       }
     });
   }
-})().finally(() => {
-  driver.quit();
-});
+
+  process.stdout.write("\n");
+}
