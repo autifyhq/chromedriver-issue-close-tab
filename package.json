@@ -1,0 +1,10 @@
+{
+  "name": "chromedriver-issue-close-tab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "chromedriver": "^107.0.3",
+    "selenium-webdriver": "^4.6.1"
+  }
+}
